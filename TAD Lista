@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct{
+  int codProd;        //código do produto
+  char nomeProd[10];  //nome do produto
+  float valor;        //valor do produto
+  int qtdeEstoque;    //quantidade disponível em estoque
+}produto;
+typedef struct{
+    produto* produtos;
+    int qtproduto;
+    int capacidade;
+}Lista;
+Lista* fazerlista(int capacidade){ // Passagem por referencia
+    Lista* lista = (Lista*) malloc(sizeof(Lista));
+    lista -> produtos = (produto*) malloc(capacidade * sizeof(produto));
+    lista -> qtproduto = 0;
+    lista -> capacidade = capacidade; // passagem por valor
+    return lista;
+}
+int inserir_produto(Lista* lista,produto x){ // passagem por referencia
+    lista->produtos[lista->qtproduto++] = x; // passagem por valor
+    return 1;
+}
+void acessar_lista(Lista* lista){ // passagem por referencia
+    for (int i = 0; i < lista->qtproduto; i++) {
+        produto x = lista->produtos[i];
+        printf("Código: %d, Nome: %s, Valor: %.3f, Estoque: %d\n",x.codProd, x.nomeProd, x.valor, x.qtdeEstoque);
+    }
+}
+void liberar(Lista* lista) { // passagem por referencia
+    free(lista->produtos);
+    free(lista);
+}
+produto busca_produtos(Lista* lista){ // passagem por referencia
+    if (lista -> qtproduto == 0){
+        printf("A lista está vazia.\n");
+        produto vazio = {0, "", 0.0, 0};
+        return vazio;
+    }
+    produto menor_valor = lista->produtos[0]; 
+    for (int i = 1; i < lista->qtproduto; i++) {
+        if (lista->produtos[i].valor < menor_valor.valor) {
+            menor_valor = lista->produtos[i];
+        }
+    }
+
+    return menor_valor;
+}
+int venda(Lista* lista, int codigo, int quantidade){ // passagem por referencia
+    for (int i = 0; i < lista->qtproduto;i++){
+         if (lista->produtos[i].codProd == codigo) {
+             if (lista->produtos[i].qtdeEstoque >= quantidade) {
+                 lista->produtos[i].qtdeEstoque -= quantidade;
+                 printf("Venda realizada com sucesso! Produto: %s | Quantidade vendida: %d\n",lista->produtos[i].nomeProd, quantidade);
+                 printf("Novo estoque: %d\n", lista->produtos[i].qtdeEstoque);
+                 return 1;
+             }
+             else{
+                 printf("produto armazenado insuficiente '%s'. Disponível: %d\n",
+                       lista->produtos[i].nomeProd, lista->produtos[i].qtdeEstoque);
+                return 0;
+             }
+         }
+    }
+    printf("Não existe o produto com código %d.\n", codigo);
+    return 0;
+}
+
+
+
+int main()
+{
+    Lista* lista = fazerlista(3); 
+
+    produto p1 = {101, "celular", 1200, 100};
+    produto p2 = {102, "mouse", 300, 200};
+
+    inserir_produto(lista, p1); 
+    inserir_produto(lista, p2); 
+
+    acessar_lista(lista);      
+    produto barato = busca_produtos(lista);
+    printf("\nProduto mais barato:\n");
+    printf("Código: %d, Nome: %s, Valor: %.3f, Estoque: %d\n",
+           barato.codProd, barato.nomeProd, barato.valor, barato.qtdeEstoque);
+    venda(lista,101,32);
+    venda(lista,102,209);
+
+    liberar(lista);       
+    
+
+    return 0;
+}
