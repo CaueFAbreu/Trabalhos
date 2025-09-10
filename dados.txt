@@ -1,0 +1,13 @@
+[PERFIL]
+Leo
+[SERIES]
+Stranger Things;4;1
+The Witcher;3;0
+Dark;3;1
+[FIM_PERFIL]
+[PERFIL]
+Caue
+[SERIES]
+Peaky Blinders;5;1
+Breaking Bad;2;0
+[FIM_PERFIL]

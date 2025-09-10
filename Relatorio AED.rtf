@@ -1,0 +1,118 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang22 Relat\'f3rio do Trabalho Final: Gerenciador de Perfis Estilo Netflix\par
+Alunos: [Nome do Aluno 1], [Nome do Aluno 2], [Nome do Aluno 3]\par
+Tema Escolhido: Netflix (Gerenciamento de perfis e listas de s\'e9ries assistidas)\par
+Data: 8 de setembro de 2025\par
+\par
+Introdu\'e7\'e3o\par
+O objetivo deste trabalho foi desenvolver um sistema de gerenciamento de perfis e s\'e9ries assistidas, inspirado na plataforma Netflix, utilizando a linguagem C. O requisito fundamental era a aplica\'e7\'e3o de listas duplamente encadeadas como estrutura de dados principal para armazenar e manipular as informa\'e7\'f5es.\par
+\par
+A solu\'e7\'e3o foi projetada com base em uma estrutura de listas aninhadas:\par
+\par
+Uma lista principal duplamente encadeada e circular para armazenar os perfis dos usu\'e1rios. Cada n\'f3 (NoPerfil) cont\'e9m o nome do usu\'e1rio e um ponteiro para sua pr\'f3pria lista de s\'e9ries.\par
+\par
+Dentro de cada n\'f3 de perfil, uma segunda lista duplamente encadeada e circular armazena as s\'e9ries (NoSerie) que aquele usu\'e1rio assistiu, incluindo t\'edtulo, n\'famero de temporadas e um status de "favorita".\par
+\par
+Optou-se por uma abordagem modular, separando a l\'f3gica de manipula\'e7\'e3o da estrutura de dados (netflix.c e netflix.h) da camada de intera\'e7\'e3o com o usu\'e1rio (main.c). O sistema tamb\'e9m implementa a persist\'eancia de dados atrav\'e9s da leitura de um arquivo dados.txt na inicializa\'e7\'e3o, permitindo que o estado da aplica\'e7\'e3o seja salvo entre execu\'e7\'f5es. O estilo de programa\'e7\'e3o adotado n\'e3o utiliza structs descritoras para as listas; em vez disso, as fun\'e7\'f5es que modificam a lista (como inser\'e7\'e3o e remo\'e7\'e3o) recebem um ponteiro para o n\'f3 inicial e retornam o novo ponteiro inicial, garantindo a integridade da lista.\par
+\par
+Documenta\'e7\'e3o do C\'f3digo\par
+As fun\'e7\'f5es foram implementadas para prover as opera\'e7\'f5es b\'e1sicas de uma lista (inclus\'e3o, busca, remo\'e7\'e3o), al\'e9m de funcionalidades espec\'edficas ao tema Netflix.\par
+\par
+Fun\'e7\'f5es B\'e1sicas de Inclus\'e3o\par
+NoPerfil* inserirPerfil(NoPerfil* lista, const char* nomeUsuario): Aloca um novo n\'f3 de perfil e o insere no in\'edcio da lista circular de perfis. A fun\'e7\'e3o recebe o ponteiro do in\'edcio atual da lista e retorna o ponteiro para o novo n\'f3, que se torna o novo in\'edcio.\par
+\par
+NoSerie* inserirSerie(NoSerie* lista, ...): De forma an\'e1loga, aloca um novo n\'f3 de s\'e9rie e o insere na lista circular de s\'e9ries de um determinado perfil. A inser\'e7\'e3o \'e9 feita no final, mantendo o in\'edcio da lista original.\par
+\par
+Fun\'e7\'f5es B\'e1sicas de Busca\par
+NoPerfil* buscarPerfil(NoPerfil* lista, const char* nomeUsuario): Percorre a lista circular de perfis a partir do n\'f3 inicial usando um la\'e7o do-while. Compara o nome de usu\'e1rio de cada n\'f3 com o valor buscado. Retorna um ponteiro para o n\'f3 encontrado ou NULL se n\'e3o houver correspond\'eancia.\par
+\par
+NoSerie* buscarSerie(NoSerie* lista, const char* titulo): Opera de maneira id\'eantica \'e0 busca de perfil, mas percorre a lista de s\'e9ries de um usu\'e1rio espec\'edfico em busca de um t\'edtulo.\par
+\par
+Fun\'e7\'f5es B\'e1sicas de Remo\'e7\'e3o\par
+NoPerfil* removerPerfil(NoPerfil* lista, const char* nomeUsuario): Localiza o perfil a ser removido usando buscarPerfil. Um passo crucial desta fun\'e7\'e3o \'e9 invocar liberarListaSeries sobre a lista de s\'e9ries do perfil, garantindo que toda a mem\'f3ria aninhada seja liberada antes de remover o n\'f3 do perfil em si. A fun\'e7\'e3o ent\'e3o reajusta os ponteiros proximo e anterior dos n\'f3s vizinhos e libera a mem\'f3ria do n\'f3 removido. Retorna o novo ponteiro de in\'edcio da lista, que pode mudar caso o n\'f3 removido fosse o antigo in\'edcio.\par
+\par
+Fun\'e7\'f5es Adicionais\par
+void favoritarSerie(NoSerie* serie): Esta fun\'e7\'e3o demonstra a manipula\'e7\'e3o de dados dentro de um n\'f3 existente. Ela recebe um ponteiro direto para um n\'f3 de s\'e9rie e inverte seu campo favorita (de 1 para 0 ou vice-versa), simulando a a\'e7\'e3o de favoritar ou desfavoritar um t\'edtulo.\par
+\par
+void gerarRelatorioGeral(NoPerfil* lista): Atravessa a lista principal de perfis. Para cada perfil encontrado, invoca a fun\'e7\'e3o imprimirSeries para exibir a lista de s\'e9ries aninhada correspondente. Essa funcionalidade gera uma vis\'e3o completa de todos os dados cadastrados no sistema.\par
+\par
+NoPerfil* carregarDadosDoArquivo(NoPerfil* lista, ...): Respons\'e1vel pela persist\'eancia. L\'ea o arquivo dados.txt, interpretando uma formata\'e7\'e3o simples com tags ([PERFIL], [SERIES]) para popular a estrutura de listas na mem\'f3ria no momento em que o programa \'e9 iniciado.\par
+\par
+Exemplos de Uso\par
+A seguir, demonstra\'e7\'f5es de opera\'e7\'f5es realizadas pelo programa, com base no arquivo dados.txt fornecido.\par
+\par
+1. Inicializa\'e7\'e3o e Relat\'f3rio Geral\par
+Ao iniciar, o programa l\'ea o arquivo dados.txt e carrega os perfis "Leo" e "Caue". Se o usu\'e1rio escolher a op\'e7\'e3o 6 (Gerar relat\'f3rio geral), a sa\'edda ser\'e1:\par
+\par
+Dados carregados com sucesso do arquivo 'dados.txt'.\par
+\par
+--- MENU DE GERENCIAMENTO NETFLIX ---\par
+[...]\par
+Escolha uma opcao: 6\par
+\par
+=========================================\par
+        RELATORIO GERAL - NETFLIX\par
+=========================================\par
+\par
+PERFIL: @Caue\par
+-----------------------------------------\par
+  -> Titulo: Peaky Blinders | Temporadas: 5 | Favorita: Sim\par
+  -> Titulo: Breaking Bad | Temporadas: 2 | Favorita: Nao\par
+\par
+PERFIL: @Leo\par
+-----------------------------------------\par
+  -> Titulo: Stranger Things | Temporadas: 4 | Favorita: Sim\par
+  -> Titulo: The Witcher | Temporadas: 3 | Favorita: Nao\par
+  -> Titulo: Dark | Temporadas: 3 | Favorita: Sim\par
+\par
+=========================================\par
+2. Adicionando uma Nova S\'e9rie a um Perfil\par
+O usu\'e1rio decide adicionar a s\'e9rie "Better Call Saul" ao perfil de "Caue" usando a op\'e7\'e3o 3.\par
+\par
+Entrada de dados:\par
+\par
+Escolha uma opcao: 3\par
+\par
+Digite o nome do perfil para adicionar a serie: Caue\par
+\par
+Digite o titulo da serie: Better Call Saul\par
+\par
+Digite o numero de temporadas: 6\par
+\par
+Sa\'edda obtida:\par
+\par
+Serie 'Better Call Saul' adicionada ao perfil 'Caue'.\par
+Ao listar as s\'e9ries de Caue (op\'e7\'e3o 4), o novo item aparece na lista.\par
+\par
+3. Removendo um Perfil\par
+O usu\'e1rio remove o perfil "Leo" do sistema utilizando a op\'e7\'e3o 2.\par
+\par
+Entrada de dados:\par
+\par
+Escolha uma opcao: 2\par
+\par
+Digite o nome do perfil a ser removido: Leo\par
+\par
+Sa\'edda obtida:\par
+\par
+Perfil 'Leo' removido com sucesso!\par
+Se um novo relat\'f3rio geral for gerado (op\'e7\'e3o 6), o perfil "Leo" e todas as suas s\'e9ries n\'e3o ser\'e3o mais exibidos, demonstrando que a remo\'e7\'e3o e a libera\'e7\'e3o de mem\'f3ria em cascata funcionaram corretamente.\par
+\par
+Conclus\'e3o\par
+A implementa\'e7\'e3o deste projeto foi uma experi\'eancia pr\'e1tica enriquecedora para solidificar os conceitos de estruturas de dados, especialmente a manipula\'e7\'e3o de listas duplamente encadeadas circulares e aninhadas.\par
+\par
+Desafios Enfrentados:\par
+O principal desafio foi o correto gerenciamento de ponteiros e de mem\'f3ria. A l\'f3gica de remo\'e7\'e3o de um n\'f3 em uma lista circular, que exige o tratamento cuidadoso dos ponteiros anterior e proximo dos n\'f3s vizinhos, demandou aten\'e7\'e3o especial. O maior ponto de complexidade, no entanto, foi a opera\'e7\'e3o de removerPerfil, que necessitava primeiramente liberar toda a mem\'f3ria da lista de s\'e9ries interna antes de liberar o n\'f3 do perfil em si, um processo crucial para evitar vazamentos de mem\'f3ria (memory leaks).\par
+\par
+Principais Li\'e7\'f5es Aprendidas:\par
+\par
+A import\'e2ncia da Modulariza\'e7\'e3o: Separar a l\'f3gica de dados (netflix.c) da l\'f3gica de interface (main.c) provou ser uma estrat\'e9gia fundamental para manter o c\'f3digo organizado, leg\'edvel e f\'e1cil de depurar.\par
+\par
+Gerenciamento de Mem\'f3ria em C: O projeto refor\'e7ou a disciplina de alocar (malloc) e liberar (free) mem\'f3ria de forma consciente. A complexidade das listas aninhadas tornou evidente como um pequeno descuido na ordem de libera\'e7\'e3o pode levar a erros graves.\par
+\par
+Aplica\'e7\'e3o Pr\'e1tica de Estruturas de Dados: Foi poss\'edvel observar como uma estrutura de dados te\'f3rica pode modelar de forma eficaz um problema do mundo real. A capacidade de aninhar listas duplamente encadeadas se mostrou uma ferramenta poderosa para representar rela\'e7\'f5es hier\'e1rquicas (um perfil possui uma lista de s\'e9ries).\par
+\par
+Em suma, o trabalho n\'e3o apenas cumpriu os requisitos t\'e9cnicos, mas tamb\'e9m proporcionou um aprendizado valioso sobre boas pr\'e1ticas de programa\'e7\'e3o, design de software e a resolu\'e7\'e3o de problemas complexos com estruturas de dados din\'e2micas.\par
+}
+ 
